@@ -1,8 +1,13 @@
 package com.example.a774261.firebasechatapp;
 
+import com.google.firebase.database.Exclude;
+
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChatMessage {
+    public String uid;
     private String messageText;
     private String messageUser;
     private long messageTime;
@@ -42,4 +47,15 @@ public class ChatMessage {
     public void setMessageTime(long messageTime) {
         this.messageTime = messageTime;
     }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("messageText", messageText);
+        result.put("messageUser", messageUser);
+        result.put("messageTime", messageTime);
+
+        return result;
+    }
+
 }

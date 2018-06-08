@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -28,19 +29,26 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseAnalytics mFirebaseAnalytics;
-    DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
-    private FirebaseListAdapter<ChatMessage> adapter;
+    private DatabaseReference rootRef;
+    //private FirebaseListAdapter<ChatMessage> adapter;
     private static final int SIGN_IN_REQUEST_CODE = 123;
+    List<String> messageList = new ArrayList<>();
+    ArrayAdapter<String> adapter;
+
 
 // ...
 
@@ -55,9 +63,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d("start", "Start Program");
+        System.out.println("start");
         //DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+        rootRef = FirebaseDatabase.getInstance().getReference();
 
         Button sendButton = (Button)findViewById(R.id.sendBtn);
+
+
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,29 +120,81 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayChatMessages() {
+        final ListView listOfMessages = findViewById(R.id.list_of_messages);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
+        listOfMessages.setAdapter(adapter);
 
-//        ListView listOfMessages = (ListView)findViewById(R.id.list_of_messages);
+        //try on child added and working with lists of data in android
+        ValueEventListener messageListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                Log.e("Count " ,""+dataSnapshot.getChildrenCount());
+               for(DataSnapshot messageSnapshot: dataSnapshot.getChildren()) {
+                   ChatMessage chatMessage = dataSnapshot.getValue(ChatMessage.class);
+                   //Adding it to a string
+                   String messages = "MSG: "+ chatMessage.getMessageText()+"\nUser: "+chatMessage.getMessageUser()+"\nTime: "+String.valueOf(chatMessage.getMessageTime())+"\n\n";
+
+                   String message = chatMessage.getMessageText();
+                   String user = chatMessage.getMessageUser();
+                   long time = chatMessage.getMessageTime();
+                   System.out.println("message only");
+                   System.out.println(message);
+                   //  String item = dogExpenditure.getItem();
+
+                   messageList.add(messages);
+                   System.out.println("entire string");
+                   System.out.println(messages);
+
+               }
+
+                if(messageList.size() == 1){
+                    adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, messageList);
+                    listOfMessages.setAdapter(adapter);
+
+                }
+                else if(messageList.size() > 1){
+                    adapter.notifyDataSetChanged();
+                }
+
+
+
+                // ...
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting message failed, log a message
+                Log.d("database error", "loadPost:onCancelled", databaseError.toException());
+                // ...
+            }
+        };
+        rootRef.addValueEventListener(messageListener);
+
+
+//        ListView listOfMessages = findViewById(R.id.list_of_messages);
 //        FirebaseListOptions<ChatMessage> options = new FirebaseListOptions.Builder<ChatMessage>()
 //                .setQuery(rootRef, ChatMessage.class)
 //                .build();
-//        adapter = new FirebaseListAdapter<ChatMessage>(options) {
-//            @Override
-//            protected void populateView(View v, ChatMessage model, int position) {
-//                // Get references to the views of message.xml
-//                TextView messageText = (TextView)v.findViewById(R.id.message_text);
-//                TextView messageUser = (TextView)v.findViewById(R.id.message_user);
-//                TextView messageTime = (TextView)v.findViewById(R.id.message_time);
+//        adapter = new FirebaseListAdapter<ChatMessage>(options)
+//        {
 //
-//                // Set their text
-//                messageText.setText(model.getMessageText());
-//                messageUser.setText(model.getMessageUser());
+//        @Override
+//        protected void populateView(View v, ChatMessage model, int position) {
+//            // Get references to the views of message.xml
+//            TextView messageText = (TextView)v.findViewById(R.id.message_text);
+//            TextView messageUser = (TextView)v.findViewById(R.id.message_user);
+//            TextView messageTime = (TextView)v.findViewById(R.id.message_time);
 //
-//                // Format the date before showing it
-//                messageTime.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)",
-//                        model.getMessageTime()));
-//            }
-//        };
+//            // Set their text
+//            messageText.setText(model.getMessageText());
+//            messageUser.setText(model.getMessageUser());
 //
+//            // Format the date before showing it
+//            messageTime.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)",
+//                    model.getMessageTime()));
+//        }
+//    };
 //        listOfMessages.setAdapter(adapter);
 
     }
