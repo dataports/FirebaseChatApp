@@ -45,9 +45,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private FirebaseAnalytics mFirebaseAnalytics;
     private DatabaseReference rootRef;
-    //private FirebaseListAdapter<ChatMessage> adapter;
+
     private static final int SIGN_IN_REQUEST_CODE = 123;
-    List<String> messageList = new ArrayList<>();
+    ArrayList<String> messageList = new ArrayList<>();
     ArrayAdapter<String> adapter;
 
 
@@ -62,14 +62,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Log.d("start", "Start Program");
         System.out.println("start");
-        //DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+
+        //Firebase database reference
         rootRef = FirebaseDatabase.getInstance().getReference();
 
+        //ListView stuff
+        ListView listOfMessages = findViewById(R.id.list_of_messages);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, messageList);
+        listOfMessages.setAdapter(adapter);
+
+
+        //send message button functions
         Button sendButton = (Button) findViewById(R.id.sendBtn);
-
-
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -119,23 +126,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayChatMessages() {
-        final ListView listOfMessages = findViewById(R.id.list_of_messages);
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
-        listOfMessages.setAdapter(adapter);
+//        ListView listOfMessages = findViewById(R.id.list_of_messages);
+//        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
+//        listOfMessages.setAdapter(adapter);
 
 
         rootRef.addChildEventListener(new ChildEventListener() {
                                           @Override
                                           public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                                               ChatMessage chatMessage = new ChatMessage();
+                                              String message;
+                                              String user;
+                                              String time;
                                               Log.e("Count " ,""+dataSnapshot.getChildrenCount());
                                               for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                                                   Log.d("debug", "loop");
-                                                  String value = childSnapshot.getValue(String.class);
-                                                  System.out.println(value);
+                                                  String key = childSnapshot.getKey();
+                                                  if(key.equals("messageText")){
+                                                      chatMessage.setMessageText(childSnapshot.getValue(String.class));
+                                                      message = childSnapshot.getValue(String.class);
+                                                      System.out.println(message);
+                                                  }
+                                                  else if(key.equals("messageTime")){
+                                                      chatMessage.setMessageTime(childSnapshot.getValue(String.class));
+                                                      time = childSnapshot.getValue(String.class);
+                                                      System.out.println(time);
+                                                  }
+                                                  else if(key.equals("messageUser")){
+                                                      chatMessage.setMessageUser(childSnapshot.getValue(String.class));
+                                                      user = childSnapshot.getValue(String.class);
+                                                      System.out.println(user);
+                                                  }
+                                                 // System.out.println(childSnapshot.getKey());
 
                                                   //Adding it to a string
-//                                                  String messages = "MSG: " + chatMessage.getMessageText() + "\nUser: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n";
+                                                 // String messages = "MSG: " + chatMessage.getMessageText() + "\nUser: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n";
 //
 //                                                  String message = chatMessage.getMessageText();
 //                                                  String user = chatMessage.getMessageUser();
@@ -150,7 +175,10 @@ public class MainActivity extends AppCompatActivity {
 
 //
                                               }
-                                              adapter.notifyDataSetChanged();
+                                              String messages = "Message: " + chatMessage.getMessageText() + "\nUser: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n";
+                                              System.out.println(messages);
+                                              messageList.add(messages);
+                                              adapter.notifyDataSetChanged(); //update the array adapter
 //
 //                                              if(messageList.size() == 1){
 //                                                  adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, messageList);
