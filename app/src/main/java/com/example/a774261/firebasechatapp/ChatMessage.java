@@ -5,6 +5,7 @@ import com.google.firebase.database.Exclude;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.text.DateFormat;
 
 public class ChatMessage {
     public String uid;
@@ -17,8 +18,10 @@ public class ChatMessage {
         this.messageUser = messageUser;
 
         // Initialize to current time
-        long messageTemp = new Date().getTime();
-        messageTime = String.valueOf(messageTemp);
+      //  long messageTemp = new Date().getTime();
+        Date messageDate = new Date();
+        DateFormat longDf = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+        messageTime = longDf.format(messageDate);
     }
 
     public ChatMessage(){

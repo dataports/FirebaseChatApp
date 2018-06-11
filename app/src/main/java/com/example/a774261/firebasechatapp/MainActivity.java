@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("start", "Start Program");
         System.out.println("start");
+       // getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
 
         //Firebase database reference
         rootRef = FirebaseDatabase.getInstance().getReference();
@@ -75,6 +77,64 @@ public class MainActivity extends AppCompatActivity {
         listOfMessages.setAdapter(adapter);
 
 
+
+        rootRef.addChildEventListener(new ChildEventListener() {
+                                          @Override
+                                          public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                              ChatMessage chatMessage = new ChatMessage();
+                                              String message;
+                                              String user;
+                                              String time;
+                                              Log.e("Count " ,""+dataSnapshot.getChildrenCount());
+                                              for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                                                  Log.d("debug", "loop");
+                                                  String key = childSnapshot.getKey();
+                                                  if(key.equals("messageText")){
+                                                      chatMessage.setMessageText(childSnapshot.getValue(String.class));
+                                                      message = childSnapshot.getValue(String.class);
+                                                      System.out.println(message);
+                                                  }
+                                                  else if(key.equals("messageTime")){
+                                                      chatMessage.setMessageTime(childSnapshot.getValue(String.class));
+                                                      time = childSnapshot.getValue(String.class);
+                                                      System.out.println(time);
+                                                  }
+                                                  else if(key.equals("messageUser")){
+                                                      chatMessage.setMessageUser(childSnapshot.getValue(String.class));
+                                                      user = childSnapshot.getValue(String.class);
+                                                      System.out.println(user);
+                                                  }
+                                                  // System.out.println(childSnapshot.getKey());
+
+                                              }
+                                              String messages = "" + chatMessage.getMessageText() + "\n\nFrom: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n";
+                                              System.out.println(messages);
+                                              messageList.add(messages);
+                                              adapter.notifyDataSetChanged(); //update the array adapter
+//
+                                          }
+
+                                          @Override
+                                          public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                                          }
+
+                                          @Override
+                                          public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                                          }
+
+                                          @Override
+                                          public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                                          }
+
+                                          @Override
+                                          public void onCancelled(DatabaseError databaseError) {
+
+                                          }
+                                      }
+        );
         //send message button functions
         Button sendButton = (Button) findViewById(R.id.sendBtn);
         sendButton.setOnClickListener(new View.OnClickListener() {
@@ -117,143 +177,8 @@ public class MainActivity extends AppCompatActivity {
                             .getDisplayName(),
                     Toast.LENGTH_LONG)
                     .show();
-
-            // Load chat room contents
-            displayChatMessages();
         }
 
-
-    }
-
-    private void displayChatMessages() {
-//        ListView listOfMessages = findViewById(R.id.list_of_messages);
-//        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
-//        listOfMessages.setAdapter(adapter);
-
-
-        rootRef.addChildEventListener(new ChildEventListener() {
-                                          @Override
-                                          public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                                              ChatMessage chatMessage = new ChatMessage();
-                                              String message;
-                                              String user;
-                                              String time;
-                                              Log.e("Count " ,""+dataSnapshot.getChildrenCount());
-                                              for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                                                  Log.d("debug", "loop");
-                                                  String key = childSnapshot.getKey();
-                                                  if(key.equals("messageText")){
-                                                      chatMessage.setMessageText(childSnapshot.getValue(String.class));
-                                                      message = childSnapshot.getValue(String.class);
-                                                      System.out.println(message);
-                                                  }
-                                                  else if(key.equals("messageTime")){
-                                                      chatMessage.setMessageTime(childSnapshot.getValue(String.class));
-                                                      time = childSnapshot.getValue(String.class);
-                                                      System.out.println(time);
-                                                  }
-                                                  else if(key.equals("messageUser")){
-                                                      chatMessage.setMessageUser(childSnapshot.getValue(String.class));
-                                                      user = childSnapshot.getValue(String.class);
-                                                      System.out.println(user);
-                                                  }
-                                                 // System.out.println(childSnapshot.getKey());
-
-                                                  //Adding it to a string
-                                                 // String messages = "MSG: " + chatMessage.getMessageText() + "\nUser: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n";
-//
-//                                                  String message = chatMessage.getMessageText();
-//                                                  String user = chatMessage.getMessageUser();
-//                                                  long time = chatMessage.getMessageTime();
-//                                                  System.out.println("message only");
-//                                                  System.out.println(message);
-//                                                  //  String item = dogExpenditure.getItem();
-//
-//                                                  messageList.add(messages);
-//                                                  System.out.println("entire string");
-//                                                  System.out.println(messages);
-
-//
-                                              }
-                                              String messages = "Message: " + chatMessage.getMessageText() + "\nUser: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n";
-                                              System.out.println(messages);
-                                              messageList.add(messages);
-                                              adapter.notifyDataSetChanged(); //update the array adapter
-//
-//                                              if(messageList.size() == 1){
-//                                                  adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, messageList);
-//                                                  listOfMessages.setAdapter(adapter);
-//
-//                                              } else if (messageList.size() > 1) {
-//                                                   adapter.notifyDataSetChanged();
-//                                              }
-                                          }
-
-                                          @Override
-                                          public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                                          }
-
-                                          @Override
-                                          public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                                          }
-
-                                          @Override
-                                          public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                                          }
-
-                                          @Override
-                                          public void onCancelled(DatabaseError databaseError) {
-
-                                          }
-                                      }
-        );
-//        //try on child added and working with lists of data in android
-//        ValueEventListener messageListener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                // Get Post object and use the values to update the UI
-//                Log.e("Count " ,""+dataSnapshot.getChildrenCount());
-//               for(DataSnapshot messageSnapshot: dataSnapshot.getChildren()) {
-//                   ChatMessage chatMessage = dataSnapshot.getValue(ChatMessage.class);
-//                   //Adding it to a string
-//                   String messages = "MSG: "+ chatMessage.getMessageText()+"\nUser: "+chatMessage.getMessageUser()+"\nTime: "+String.valueOf(chatMessage.getMessageTime())+"\n\n";
-//
-//                   String message = chatMessage.getMessageText();
-//                   String user = chatMessage.getMessageUser();
-//                   long time = chatMessage.getMessageTime();
-//                   System.out.println("message only");
-//                   System.out.println(message);
-//                   //  String item = dogExpenditure.getItem();
-//
-//                   messageList.add(messages);
-//                   System.out.println("entire string");
-//                   System.out.println(messages);
-//
-//               }
-//
-//                if(messageList.size() == 1){
-//                    adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, messageList);
-//                    listOfMessages.setAdapter(adapter);
-//
-//                }
-//                else if(messageList.size() > 1){
-//                    adapter.notifyDataSetChanged();
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                // Getting message failed, log a message
-//                Log.d("database error", "loadPost:onCancelled", databaseError.toException());
-//                // ...
-//            }
-//        };
-//        rootRef.addValueEventListener(messageListener);
-//
 
     }
 
@@ -268,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
                         "Successfully signed in. Welcome!",
                         Toast.LENGTH_LONG)
                         .show();
-                displayChatMessages();
             } else {
                 Toast.makeText(this,
                         "We couldn't sign you in. Please try again later.",
