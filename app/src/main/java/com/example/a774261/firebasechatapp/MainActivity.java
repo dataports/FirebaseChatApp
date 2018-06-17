@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         //ListView stuff
         ListView listOfMessages = findViewById(R.id.list_of_messages);
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, messageList);
+        adapter = new ArrayAdapter<>(this, R.layout.row, messageList);
         listOfMessages.setAdapter(adapter);
 
 
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                                                   // System.out.println(childSnapshot.getKey());
 
                                               }
-                                              String messages = "" + chatMessage.getMessageText() + "\n\nFrom: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n";
+                                              String messages = "" + chatMessage.getMessageText() + "\nFrom: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n";
                                               System.out.println(messages);
                                               messageList.add(messages);
                                               adapter.notifyDataSetChanged(); //update the array adapter
