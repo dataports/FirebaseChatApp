@@ -52,6 +52,19 @@ public class ChatMessage {
         this.messageTime = messageTime;
     }
 
+    //check that the message doesn't exceed the character limit of 256
+    public boolean checkMessageLength(String message){
+        setMessageText(message);
+        int length = messageText.length();
+
+        if(length < 256){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();

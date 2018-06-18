@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         ListView listOfMessages = findViewById(R.id.list_of_messages);
         adapter = new ArrayAdapter<>(this, R.layout.row, messageList);
         listOfMessages.setAdapter(adapter);
+        final EditText input = (EditText) findViewById(R.id.messageTxt);
 
 
 
@@ -107,10 +108,14 @@ public class MainActivity extends AppCompatActivity {
                                                   // System.out.println(childSnapshot.getKey());
 
                                               }
+                                              String messageT = chatMessage.getMessageText();
                                               String messages = "" + chatMessage.getMessageText() + "\nFrom: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n";
-                                              System.out.println(messages);
-                                              messageList.add(messages);
-                                              adapter.notifyDataSetChanged(); //update the array adapter
+
+                                              if((chatMessage.checkMessageLength(messageT))) {
+                                                  System.out.println(messages);
+                                                  messageList.add(messages);
+                                                  adapter.notifyDataSetChanged(); //update the array adapter
+                                              }
 //
                                           }
 
@@ -140,21 +145,27 @@ public class MainActivity extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText input = (EditText) findViewById(R.id.messageTxt);
+                //EditText input = (EditText) findViewById(R.id.messageTxt);
 
                 // Read the input field and push a new instance
                 // of ChatMessage to the Firebase database
-                FirebaseDatabase.getInstance()
-                        .getReference()
-                        .push()
-                        .setValue(new ChatMessage(input.getText().toString(),
-                                FirebaseAuth.getInstance()
-                                        .getCurrentUser()
-                                        .getDisplayName())
-                        );
 
-                // Clear the input
-                input.setText("");
+                if(input.getText().length() < 256) {
+                    FirebaseDatabase.getInstance()
+                            .getReference()
+                            .push()
+                            .setValue(new ChatMessage(input.getText().toString(),
+                                    FirebaseAuth.getInstance()
+                                            .getCurrentUser()
+                                            .getDisplayName())
+                            );
+
+                    // Clear the input
+                    input.setText("");
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "Over 255 characters, not sent", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -231,6 +242,8 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     }
+
+
 
 
 }
