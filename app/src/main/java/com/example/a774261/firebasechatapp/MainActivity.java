@@ -1,5 +1,6 @@
 package com.example.a774261.firebasechatapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -11,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int SIGN_IN_REQUEST_CODE = 123;
     ArrayList<String> messageList = new ArrayList<>();
     ArrayAdapter<String> adapter;
+    ListView listOfMessages;
 
 
 // ...
@@ -62,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
 
         Log.d("start", "Start Program");
         System.out.println("start");
@@ -71,14 +74,34 @@ public class MainActivity extends AppCompatActivity {
         //Firebase database reference
         rootRef = FirebaseDatabase.getInstance().getReference();
 
+        // Obtain the FirebaseAnalytics instance.
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            // Start sign in/sign up activity
+            startActivityForResult(
+                    AuthUI.getInstance()
+                            .createSignInIntentBuilder()
+                            .build(),
+                    SIGN_IN_REQUEST_CODE
+            );
+        } else {
+            // User is already signed in. Therefore, display
+            // a welcome Toast
+            Toast.makeText(this,
+                    "Welcome " + FirebaseAuth.getInstance()
+                            .getCurrentUser()
+                            .getDisplayName(),
+                    Toast.LENGTH_LONG)
+                    .show();
+        }
+        setContentView(R.layout.activity_main);
         //ListView stuff
-        ListView listOfMessages = findViewById(R.id.list_of_messages);
+       listOfMessages = findViewById(R.id.list_of_messages);
         adapter = new ArrayAdapter<>(this, R.layout.row, messageList);
         listOfMessages.setAdapter(adapter);
         final EditText input = (EditText) findViewById(R.id.messageTxt);
 
-
-
+        scrollMyListViewToBottom();
         rootRef.addChildEventListener(new ChildEventListener() {
                                           @Override
                                           public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -116,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
                                                   messageList.add(messages);
                                                   adapter.notifyDataSetChanged(); //update the array adapter
                                               }
+                                              scrollMyListViewToBottom();
 //
                                           }
 
@@ -166,29 +190,14 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     Toast.makeText(getApplicationContext(), "Over 255 characters, not sent", Toast.LENGTH_SHORT).show();
                 }
+
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                scrollMyListViewToBottom();
             }
         });
 
-        // Obtain the FirebaseAnalytics instance.
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            // Start sign in/sign up activity
-            startActivityForResult(
-                    AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .build(),
-                    SIGN_IN_REQUEST_CODE
-            );
-        } else {
-            // User is already signed in. Therefore, display
-            // a welcome Toast
-            Toast.makeText(this,
-                    "Welcome " + FirebaseAuth.getInstance()
-                            .getCurrentUser()
-                            .getDisplayName(),
-                    Toast.LENGTH_LONG)
-                    .show();
-        }
+
 
 
     }
@@ -241,6 +250,16 @@ public class MainActivity extends AppCompatActivity {
                     });
         }
         return true;
+    }
+
+    private void scrollMyListViewToBottom() {
+        listOfMessages.post(new Runnable() {
+            @Override
+            public void run() {
+                listOfMessages.setSelection(adapter.getCount() - 1);
+                Log.d("UI Thread", "I'm running!");
+            }
+        });
     }
 
 
