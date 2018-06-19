@@ -71,16 +71,16 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
-        final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "id")
-                .setSmallIcon(R.drawable.icon)
-                .setContentTitle("My notification")
-                .setContentText("Hello World!")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                // Set the intent that will fire when the user taps the notification
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
+//        final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "id")
+//                .setSmallIcon(R.drawable.icon)
+//                .setContentTitle("My notification")
+//                .setContentText("Hello World!")
+//                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+//                // Set the intent that will fire when the user taps the notification
+//                .setContentIntent(pendingIntent)
+//                .setAutoCancel(true);
 
         //Firebase database reference
         rootRef = FirebaseDatabase.getInstance().getReference();
@@ -150,6 +150,16 @@ public class MainActivity extends AppCompatActivity {
                                                   messageList.add(messages);
                                                   adapter.notifyDataSetChanged(); //update the array adapter
                                                   //generate notification
+
+                                                   NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "id")
+                                                          .setSmallIcon(R.drawable.icon)
+                                                          .setContentTitle(chatMessage.getMessageUser())
+                                                          .setContentText(chatMessage.getMessageText())
+                                                          .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                                                          // Set the intent that will fire when the user taps the notification
+                                                          .setContentIntent(pendingIntent)
+                                                          .setAutoCancel(true);
+
                                                   NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
                                                   int id = 0;
                                                 // notificationId is a unique int for each notification that you must define
