@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> messageList = new ArrayList<>();
     ArrayAdapter<String> adapter;
     ListView listOfMessages;
+    ChildEventListener listener;
 
 
 // ...
@@ -67,23 +68,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d("start", "Start Program");
         System.out.println("start");
        // getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-// Create an explicit intent for an Activity in your app
-
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-//        final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "id")
-//                .setSmallIcon(R.drawable.icon)
-//                .setContentTitle("My notification")
-//                .setContentText("Hello World!")
-//                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-//                // Set the intent that will fire when the user taps the notification
-//                .setContentIntent(pendingIntent)
-//                .setAutoCancel(true);
-
-        //Firebase database reference
-        rootRef = FirebaseDatabase.getInstance().getReference();
 
         // Obtain the FirebaseAnalytics instance.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
@@ -106,86 +90,10 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         }
         setContentView(R.layout.activity_main);
-        //ListView stuff
-       listOfMessages = findViewById(R.id.list_of_messages);
-        adapter = new ArrayAdapter<>(this, R.layout.row, messageList);
-        listOfMessages.setAdapter(adapter);
+
+
         final EditText input = (EditText) findViewById(R.id.messageTxt);
 
-        scrollMyListViewToBottom();
-        rootRef.addChildEventListener(new ChildEventListener() {
-                                          @Override
-                                          public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                                              ChatMessage chatMessage = new ChatMessage();
-                                              String message;
-                                              String user;
-                                              String time;
-                                              Log.e("Count " ,""+dataSnapshot.getChildrenCount());
-                                              for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                                                  Log.d("debug", "loop");
-                                                  String key = childSnapshot.getKey();
-                                                  if(key.equals("messageText")){
-                                                      chatMessage.setMessageText(childSnapshot.getValue(String.class));
-                                                      message = childSnapshot.getValue(String.class);
-                                                      System.out.println(message);
-                                                  }
-                                                  else if(key.equals("messageTime")){
-                                                      chatMessage.setMessageTime(childSnapshot.getValue(String.class));
-                                                      time = childSnapshot.getValue(String.class);
-                                                      System.out.println(time);
-                                                  }
-                                                  else if(key.equals("messageUser")){
-                                                      chatMessage.setMessageUser(childSnapshot.getValue(String.class));
-                                                      user = childSnapshot.getValue(String.class);
-                                                      System.out.println(user);
-                                                  }
-                                                  // System.out.println(childSnapshot.getKey());
-
-                                              }
-                                              String messageT = chatMessage.getMessageText();
-                                              String messages = "" + chatMessage.getMessageText() + "\nFrom: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n";
-
-                                              if((chatMessage.checkMessageLength(messageT))) {
-                                                  System.out.println(messages);
-                                                  messageList.add(messages);
-                                                  adapter.notifyDataSetChanged(); //update the array adapter
-
-                                                  //generate notification
-
-                                                  //creates a nullpointer and crashes the program
-                                                //  System.out.println(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-                                                 // System.out.println(chatMessage.getMessageUser());
-                                               //  if(!(FirebaseAuth.getInstance().getCurrentUser().getDisplayName()).equals(chatMessage.getMessageUser())) {
-
-                                                    createNotification(chatMessage, pendingIntent);
-                                              //   }
-
-                                              }
-                                              scrollMyListViewToBottom();
-//
-                                          }
-
-                                          @Override
-                                          public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                                          }
-
-                                          @Override
-                                          public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                                          }
-
-                                          @Override
-                                          public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                                          }
-
-                                          @Override
-                                          public void onCancelled(DatabaseError databaseError) {
-
-                                          }
-                                      }
-        );
         //send message button functions
         Button sendButton = (Button) findViewById(R.id.sendBtn);
         sendButton.setOnClickListener(new View.OnClickListener() {
@@ -224,6 +132,135 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume(){
+        super.onResume();
+        // Create an explicit intent for an Activity in your app
+        //Firebase database reference
+        rootRef = FirebaseDatabase.getInstance().getReference();
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        //ListView stuff
+        listOfMessages = findViewById(R.id.list_of_messages);
+        adapter = new ArrayAdapter<>(this, R.layout.row, messageList);
+        listOfMessages.setAdapter(adapter);
+
+        scrollMyListViewToBottom();
+        listener = rootRef.addChildEventListener(new ChildEventListener() {
+                                          @Override
+                                          public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                              ChatMessage chatMessage = new ChatMessage();
+                                              String message;
+                                              String user;
+                                              String time;
+                                              Log.e("Count " ,""+dataSnapshot.getChildrenCount());
+                                              for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                                                  Log.d("debug", "loop");
+                                                  String key = childSnapshot.getKey();
+                                                  if(key.equals("messageText")){
+                                                      chatMessage.setMessageText(childSnapshot.getValue(String.class));
+                                                      message = childSnapshot.getValue(String.class);
+                                                      System.out.println(message);
+                                                  }
+                                                  else if(key.equals("messageTime")){
+                                                      chatMessage.setMessageTime(childSnapshot.getValue(String.class));
+                                                      time = childSnapshot.getValue(String.class);
+                                                      System.out.println(time);
+                                                  }
+                                                  else if(key.equals("messageUser")){
+                                                      chatMessage.setMessageUser(childSnapshot.getValue(String.class));
+                                                      user = childSnapshot.getValue(String.class);
+                                                      System.out.println(user);
+                                                  }
+                                                  // System.out.println(childSnapshot.getKey());
+
+                                              }
+                                              String messageT = chatMessage.getMessageText();
+                                              String messages = "" + chatMessage.getMessageText() + "\nFrom: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n";
+
+                                              if((chatMessage.checkMessageLength(messageT))) {
+                                                  System.out.println(messages);
+                                                  if(!messageList.contains(messages)) {
+                                                      messageList.add(messages);
+                                                      adapter.notifyDataSetChanged(); //update the array adapter
+                                                      createNotification(chatMessage, pendingIntent);
+                                                  }
+                                              }
+                                              scrollMyListViewToBottom();
+//
+                                          }
+
+                                          @Override
+                                          public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                                          }
+
+                                          @Override
+                                          public void onChildRemoved(DataSnapshot dataSnapshot) {
+                                              ChatMessage chatMessage = new ChatMessage();
+                                              String message;
+                                              String user;
+                                              String time;
+                                              Log.e("Count " ,""+dataSnapshot.getChildrenCount());
+                                              for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                                                  Log.d("debug", "loop");
+                                                  String key = childSnapshot.getKey();
+                                                  if(key.equals("messageText")){
+                                                      chatMessage.setMessageText(childSnapshot.getValue(String.class));
+                                                      message = childSnapshot.getValue(String.class);
+                                                      System.out.println(message);
+                                                  }
+                                                  else if(key.equals("messageTime")){
+                                                      chatMessage.setMessageTime(childSnapshot.getValue(String.class));
+                                                      time = childSnapshot.getValue(String.class);
+                                                      System.out.println(time);
+                                                  }
+                                                  else if(key.equals("messageUser")){
+                                                      chatMessage.setMessageUser(childSnapshot.getValue(String.class));
+                                                      user = childSnapshot.getValue(String.class);
+                                                      System.out.println(user);
+                                                  }
+                                                  // System.out.println(childSnapshot.getKey());
+
+                                              }
+                                              String messageT = chatMessage.getMessageText();
+                                              String messages = "" + chatMessage.getMessageText() + "\nFrom: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n";
+
+                                              if((chatMessage.checkMessageLength(messageT))) {
+                                                  System.out.println(messages);
+                                                  messageList.remove(messages);
+                                                  adapter.notifyDataSetChanged(); //update the array adapter
+                                              }
+                                              scrollMyListViewToBottom();
+
+                                          }
+
+                                          @Override
+                                          public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                                          }
+
+                                          @Override
+                                          public void onCancelled(DatabaseError databaseError) {
+
+                                          }
+                                      }
+        );
+    }
+
+//    @Override
+//    protected void onPause(){
+//        super.onPause();
+//
+//        if(rootRef!=null)
+//        {
+//            rootRef.removeEventListener(listener);
+//            listener=null;
+//            rootRef=null;
+//        }
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
