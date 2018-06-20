@@ -149,21 +149,16 @@ public class MainActivity extends AppCompatActivity {
                                                   System.out.println(messages);
                                                   messageList.add(messages);
                                                   adapter.notifyDataSetChanged(); //update the array adapter
+
                                                   //generate notification
 
-                                                   NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "id")
-                                                          .setSmallIcon(R.drawable.icon)
-                                                          .setContentTitle(chatMessage.getMessageUser())
-                                                          .setContentText(chatMessage.getMessageText())
-                                                          .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                                                          // Set the intent that will fire when the user taps the notification
-                                                          .setContentIntent(pendingIntent)
-                                                          .setAutoCancel(true);
+                                                  //creates a nullpointer and crashes the program
+                                                //  System.out.println(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+                                                 // System.out.println(chatMessage.getMessageUser());
+                                               //  if(!(FirebaseAuth.getInstance().getCurrentUser().getDisplayName()).equals(chatMessage.getMessageUser())) {
 
-                                                  NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-                                                  int id = 0;
-                                                // notificationId is a unique int for each notification that you must define
-                                                  notificationManager.notify((id+1), mBuilder.build());
+                                                    createNotification(chatMessage, pendingIntent);
+                                              //   }
 
                                               }
                                               scrollMyListViewToBottom();
@@ -284,7 +279,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 listOfMessages.setSelection(adapter.getCount() - 1);
-                Log.d("UI Thread", "I'm running!");
             }
         });
     }
@@ -304,7 +298,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void createNotification(ChatMessage chatMessage, PendingIntent pendingIntent){
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "id")
+                .setSmallIcon(R.drawable.icon)
+                .setContentTitle(chatMessage.getMessageUser())
+                .setContentText(chatMessage.getMessageText())
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                // Set the intent that will fire when the user taps the notification
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
 
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+        int id = 0;
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify((id + 1), mBuilder.build());
+    }
 
 }
 
