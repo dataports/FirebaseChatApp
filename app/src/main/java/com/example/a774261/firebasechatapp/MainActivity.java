@@ -28,6 +28,7 @@ import com.firebase.ui.auth.AuthUI;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseError;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -35,7 +36,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
+import com.google.firebase.database.ValueEventListener;
 
 
 import java.util.ArrayList;
@@ -47,11 +48,13 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAnalytics mFirebaseAnalytics;
     private DatabaseReference rootRef;
 
+
     private static final int SIGN_IN_REQUEST_CODE = 123;
     ArrayList<String> messageList = new ArrayList<>();
     ArrayAdapter<String> adapter;
     ListView listOfMessages;
     ChildEventListener listener;
+    ChildEventListener onCreateListener;
 
 
 // ...
@@ -68,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("OnCreate", "Activity Created");
         System.out.println("start");
        // getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-
+        rootRef = FirebaseDatabase.getInstance().getReference();
         // Obtain the FirebaseAnalytics instance.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
@@ -90,6 +93,15 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         }
         setContentView(R.layout.activity_main);
+
+        //ListView stuff
+        listOfMessages = findViewById(R.id.list_of_messages);
+        adapter = new ArrayAdapter<>(this, R.layout.row, messageList);
+        listOfMessages.setAdapter(adapter);
+        Log.d("onResume", "Here");
+        scrollMyListViewToBottom();
+       //get a single snapshot of the database on app creation
+
 
 
         final EditText input = (EditText) findViewById(R.id.messageTxt);
@@ -127,6 +139,57 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("ChildAdded", "Program Resumed");
+                ChatMessage chatMessage = new ChatMessage();
+                String message;
+                String user;
+                String time;
+                Log.e("Count " ,""+dataSnapshot.getChildrenCount());
+                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                    Log.d("debug", "loop");
+                    String key = childSnapshot.getKey();
+                    if(key.equals("messageText")){
+                        chatMessage.setMessageText(childSnapshot.getValue(String.class));
+                        message = childSnapshot.getValue(String.class);
+                        System.out.println(message);
+                    }
+                    else if(key.equals("messageTime")){
+                        chatMessage.setMessageTime(childSnapshot.getValue(String.class));
+                        time = childSnapshot.getValue(String.class);
+                        System.out.println(time);
+                    }
+                    else if(key.equals("messageUser")){
+                        chatMessage.setMessageUser(childSnapshot.getValue(String.class));
+                        user = childSnapshot.getValue(String.class);
+                        System.out.println(user);
+                    }
+                    // System.out.println(childSnapshot.getKey());
+
+                }
+                String messageT = chatMessage.getMessageText();
+                String messages = "" + chatMessage.getMessageText() + "\nFrom: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n";
+
+                    System.out.println(messages);
+                    if(!messageList.contains(messages) && !messages.equals("" + chatMessage.getMessageText() + "\nFrom: " + chatMessage.getMessageUser() + "\nTime: " + String.valueOf(chatMessage.getMessageTime()) + "\n\n")) {
+                        messageList.add(messages);
+                        adapter.notifyDataSetChanged(); //update the array adapter
+                    }
+                }
+
+
+                // do your stuff here with value
+
+
+
+            @Override
+            public void onCancelled(DatabaseError firebaseError) {
+                System.out.println("hello");
+
+            }
+        });
 
 
 
@@ -252,17 +315,18 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-//    @Override
-//    protected void onPause(){
-//        super.onPause();
-//
-//        if(rootRef!=null)
-//        {
-//            rootRef.removeEventListener(listener);
-//            listener=null;
-//            rootRef=null;
-//        }
-//    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+
+        if(rootRef!=null)
+        {
+            Log.d("Remove", "Event listener removed");
+            rootRef.removeEventListener(listener);
+            listener=null;
+            rootRef=null;
+        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -352,6 +416,7 @@ public class MainActivity extends AppCompatActivity {
         // notificationId is a unique int for each notification that you must define
         notificationManager.notify((id + 1), mBuilder.build());
     }
+
 
 }
 
