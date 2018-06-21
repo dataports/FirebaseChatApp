@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         createNotificationChannel();
-        Log.d("start", "Start Program");
+        Log.d("OnCreate", "Activity Created");
         System.out.println("start");
        // getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
 
@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         // Create an explicit intent for an Activity in your app
         //Firebase database reference
+        Log.d("onResume", "Program Resumed");
         rootRef = FirebaseDatabase.getInstance().getReference();
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -146,11 +147,12 @@ public class MainActivity extends AppCompatActivity {
         listOfMessages = findViewById(R.id.list_of_messages);
         adapter = new ArrayAdapter<>(this, R.layout.row, messageList);
         listOfMessages.setAdapter(adapter);
-
+        Log.d("onResume", "Here");
         scrollMyListViewToBottom();
         listener = rootRef.addChildEventListener(new ChildEventListener() {
                                           @Override
                                           public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                              Log.d("ChildAdded", "Program Resumed");
                                               ChatMessage chatMessage = new ChatMessage();
                                               String message;
                                               String user;
