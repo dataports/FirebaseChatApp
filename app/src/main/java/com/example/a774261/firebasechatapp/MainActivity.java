@@ -191,7 +191,9 @@ public class MainActivity extends AppCompatActivity {
                                                              if(!messageList.contains(messages)) {
                                                                  messageList.add(messages);
                                                                  adapter.notifyDataSetChanged(); //update the array adapter
-                                                                 if(initialDataLoaded){
+                                                                 if(initialDataLoaded && (!chatMessage.getMessageUser().equals(FirebaseAuth.getInstance()
+                                                                         .getCurrentUser()
+                                                                         .getDisplayName()))){
                                                                      createNotification(chatMessage, pendingIntent);
                                                                  }
 
