@@ -3,8 +3,8 @@
     package="com.example.a774261.firebasechatapp">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!--<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
+    <!--<uses-permission android:name="android.permission.RECORD_AUDIO" />-->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAnalytics mFirebaseAnalytics;
     private DatabaseReference rootRef;
 
-
+    static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int SIGN_IN_REQUEST_CODE = 123;
     ArrayList<String> messageList = new ArrayList<>();
     ArrayAdapter<String> adapter;
@@ -142,23 +143,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> parent of 84f70ad... Revert "Camera Activity Fragment added"
+
         //camera button functions
         ImageButton cameraButton = (ImageButton) findViewById(R.id.cameraButton);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                dispatchTakePictureIntent();
             }
         });
-<<<<<<< HEAD
->>>>>>> parent of c1bd919... new intent
-=======
->>>>>>> parent of 84f70ad... Revert "Camera Activity Fragment added"
+
 
         rootRef = FirebaseDatabase.getInstance().getReference();
         Intent intent = new Intent(this, MainActivity.class);
@@ -410,6 +404,12 @@ public class MainActivity extends AppCompatActivity {
         int id = 0;
         // notificationId is a unique int for each notification that you must define
         notificationManager.notify((id + 1), mBuilder.build());
+    }
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
     }
 
 
