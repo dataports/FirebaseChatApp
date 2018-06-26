@@ -19,7 +19,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -142,14 +141,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //camera button functions
-        ImageButton cameraButton = (ImageButton) findViewById(R.id.cameraButton);
-        cameraButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
 
         rootRef = FirebaseDatabase.getInstance().getReference();
         Intent intent = new Intent(this, MainActivity.class);
