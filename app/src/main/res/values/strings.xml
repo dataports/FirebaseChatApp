@@ -2,5 +2,10 @@
     <string name="app_name">FirebaseChatApp</string>
     <string name="channel_name">ChatChannel</string>
     <string name="channel_description">idk</string>
+    <string name="picture">Picture</string>
+    <string name="description_info">Info</string>
+    <string name="request_permission">This sample needs camera permission.</string>
+    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+
 
 </resources>

@@ -19,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -142,7 +143,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of 84f70ad... Revert "Camera Activity Fragment added"
         //camera button functions
         ImageButton cameraButton = (ImageButton) findViewById(R.id.cameraButton);
         cameraButton.setOnClickListener(new View.OnClickListener() {
@@ -151,7 +155,10 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+<<<<<<< HEAD
 >>>>>>> parent of c1bd919... new intent
+=======
+>>>>>>> parent of 84f70ad... Revert "Camera Activity Fragment added"
 
         rootRef = FirebaseDatabase.getInstance().getReference();
         Intent intent = new Intent(this, MainActivity.class);
