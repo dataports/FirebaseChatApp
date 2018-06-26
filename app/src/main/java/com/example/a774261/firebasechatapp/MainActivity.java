@@ -141,6 +141,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+<<<<<<< HEAD
+=======
+        //camera button functions
+        ImageButton cameraButton = (ImageButton) findViewById(R.id.cameraButton);
+        cameraButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+>>>>>>> parent of c1bd919... new intent
 
         rootRef = FirebaseDatabase.getInstance().getReference();
         Intent intent = new Intent(this, MainActivity.class);
