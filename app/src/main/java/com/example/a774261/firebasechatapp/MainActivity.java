@@ -286,6 +286,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         // Create an explicit intent for an Activity in your app
         //Firebase database reference
+        rootRef = FirebaseDatabase.getInstance().getReference();
         Log.d("onResume", "Program Resumed");
         initialDataLoaded = false;
         rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
